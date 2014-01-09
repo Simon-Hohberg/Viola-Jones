@@ -52,5 +52,9 @@ class HaarLikeFeature(object):
             # bottom right area
             fourth = intImage.get_area_sum((self.top_left[0] + self.width/2, self.top_left[1] + self.height/2), self.bottom_right)
             score = first - second - third + fourth
+        return score
+    
+    def get_vote(self, intImage):
+        score = self.get_score(intImage)
         return 1 if score < self.polarity*self.threshold else 0
     
