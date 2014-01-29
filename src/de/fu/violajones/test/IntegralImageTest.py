@@ -7,7 +7,7 @@ class IntegralImageTest(unittest.TestCase):
 
 
     def setUp(self):
-        self.intImage = IntegralImage('../../../../../../trainingdata/faces/faces0001.png')
+        self.intImage = IntegralImage('../../../../../../trainingdata/faces/faces0001.png', 0)
 
     def tearDown(self):
         pass

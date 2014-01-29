@@ -7,7 +7,7 @@ from de.fu.violajones.IntegralImage import IntegralImage
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.intImage = IntegralImage('../../../../../../trainingdata/faces/faces0001.png')
+        self.intImage = IntegralImage('../../../../../../trainingdata/faces/faces0001.png', 0)
     
     def tearDown(self):
         pass
@@ -39,6 +39,14 @@ class Test(unittest.TestCase):
         left_area = self.intImage.get_area_sum((0,0), (8, 24))
         middle_area = self.intImage.get_area_sum((8,0), (16,24))
         right_area = self.intImage.get_area_sum((16,0), (24,24))
+        expected = 1 if feature.threshold * feature.polarity > left_area - middle_area + right_area else 0
+        assert feature.get_vote(self.intImage) == expected
+        
+    def test_three_vertical(self):
+        feature = HaarLikeFeature(FeatureType.THREE_VERTICAL, (0,0), 24, 24, 100000, 1);
+        left_area = self.intImage.get_area_sum((0,0), (24, 8))
+        middle_area = self.intImage.get_area_sum((0,8), (24,16))
+        right_area = self.intImage.get_area_sum((0,16), (24,24))
         expected = 1 if feature.threshold * feature.polarity > left_area - middle_area + right_area else 0
         assert feature.get_vote(self.intImage) == expected
         

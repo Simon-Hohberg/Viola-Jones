@@ -15,10 +15,12 @@ Original    Integral
 '''
 class IntegralImage:
 
-    def __init__(self, imageSrc):
+    def __init__(self, imageSrc, label):
         self.original = np.array(Image.open(imageSrc))
-        self.sum = 0;
+        self.sum = 0
+        self.label = label
         self.calculate_integral()
+        self.weight = 0
     
     def calculate_integral(self):
         # an index of -1 refers to the last row/column
@@ -48,3 +50,8 @@ class IntegralImage:
         bottomLeft = (topLeft[0], bottomRight[1])
         return self.integral[bottomRight] - self.integral[topRight] - self.integral[bottomLeft] + self.integral[topLeft] 
     
+    def set_label(self, label):
+        self.label = label
+    
+    def set_weight(self, weight):
+        self.weight = weight
