@@ -34,7 +34,7 @@ class HaarLikeFeature(object):
             first = intImage.get_area_sum(self.top_left, (self.top_left[0] + self.width, self.top_left[1] + self.height/2))
             second = intImage.get_area_sum((self.top_left[0], self.top_left[1] + self.height/2), self.bottom_right)
             score = first - second
-        elif self.type== FeatureType.TWO_HORIZONTAL:
+        elif self.type == FeatureType.TWO_HORIZONTAL:
             first = intImage.get_area_sum(self.top_left, (self.top_left[0] + self.width/2, self.top_left[1] + self.height))
             second = intImage.get_area_sum((self.top_left[0] + self.width/2, self.top_left[1]), self.bottom_right)
             score = first - second
