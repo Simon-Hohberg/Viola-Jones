@@ -1,17 +1,16 @@
 import unittest
-from de.fu.violajones.HaarLikeFeature import HaarLikeFeature
-from de.fu.violajones.HaarLikeFeature import FeatureType
-from de.fu.violajones.IntegralImage import IntegralImage
+from violajones.HaarLikeFeature import HaarLikeFeature
+from violajones.HaarLikeFeature import FeatureType
+from violajones.IntegralImage import IntegralImage
 
 
-class Test(unittest.TestCase):
+class HaarLikeFeatureTest(unittest.TestCase):
 
     def setUp(self):
-        self.intImage = IntegralImage('../../../../../../trainingdata/faces/faces0001.png', 0)
+        self.intImage = IntegralImage('../trainingdata/faces/faces0001.png', 0)
     
     def tearDown(self):
         pass
-
 
     def test_two_vertical(self):
         feature = HaarLikeFeature(FeatureType.TWO_VERTICAL, (0,0), 24, 24, 100000, 1);
@@ -61,5 +60,4 @@ class Test(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

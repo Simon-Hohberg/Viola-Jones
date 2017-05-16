@@ -1,21 +1,11 @@
 import numpy as np
-from de.fu.violajones.HaarLikeFeature import HaarLikeFeature
-from de.fu.violajones.HaarLikeFeature import FeatureTypes
+from violajones.HaarLikeFeature import HaarLikeFeature
+from violajones.HaarLikeFeature import FeatureTypes
 import sys
 
 LOADING_BAR_LENGTH = 50
 
-class AdaBoost(object):
-    '''
-    classdocs
-    '''
 
-
-    def __init__(self, params):
-        '''
-        Constructor
-        '''
-    
 def learn(positives, negatives, T):
     
     # construct initial weights
@@ -29,14 +19,14 @@ def learn(positives, negatives, T):
     # create column vector
     images = np.hstack((positives, negatives))
     
-    print('Creating haar like features..')
+    print('Creating haar-like features..')
     features = []
     for f in FeatureTypes:
         for width in range(f[0],25,f[0]):
             for height in range(f[1],25,f[1]):
                 for x in range(25-width):
                     for y in range(25-height):
-                        features.append(HaarLikeFeature(f, (x,y), width, height, 0, 1))
+                        features.append(HaarLikeFeature(f, (x, y), width, height, 0, 1))
     print('..done.\n' + str(len(features)) + ' features created.\n')
     
     print('Calculating scores for features..')
@@ -52,8 +42,8 @@ def learn(positives, negatives, T):
         i += 1
         if i % 1000 == 0:
             break   # TODO: remove
-            progres = int(((i + 1) * LOADING_BAR_LENGTH) / len(features))
-            sys.stdout.write('[' + '='*progres + ' '*(LOADING_BAR_LENGTH-progres) + ']\r')
+            progress = int(((i + 1) * LOADING_BAR_LENGTH) / len(features))
+            sys.stdout.write('[' + '='*progress + ' '*(LOADING_BAR_LENGTH-progress) + ']\r')
             sys.stdout.flush()
     print('\n')
     
@@ -103,10 +93,9 @@ def learn(positives, negatives, T):
         # remove feature (a feature can't be selected twice)
         votes.pop(feature)
         
-        progres = int(((i + 1) * LOADING_BAR_LENGTH) / T)
-        sys.stdout.write('[' + '='*progres + ' '*(LOADING_BAR_LENGTH-progres) + ']\r')
+        progress = int(((i + 1) * LOADING_BAR_LENGTH) / T)
+        sys.stdout.write('[' + '='*progress + ' '*(LOADING_BAR_LENGTH-progress) + ']\r')
         sys.stdout.flush()
     print('\n')
     
     return classifiers
-        
