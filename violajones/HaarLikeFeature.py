@@ -16,12 +16,18 @@ class HaarLikeFeature(object):
     def __init__(self, feature_type, position, width, height, threshold, polarity):
         """
         Creates a new haar-like feature.
-        @param feature_type: see FeatureType enum
-        @param position: top left corner where the feature begins (tuple)
-        @param width: width of the feature
-        @param height: height of the feature
-        @param threshold: feature threshold
-        @param polarity: polarity of the feature -1 or 1
+        :param feature_type: Type of new feature, see FeatureType enum
+        :type feature_type: violajonse.HaarLikeFeature.FeatureTypes
+        :param position: Top left corner where the feature begins (x, y)
+        :type position: (int, int)
+        :param width: Width of the feature
+        :type width: int
+        :param height: Height of the feature
+        :type height: int
+        :param threshold: Feature threshold
+        :type threshold: float
+        :param polarity: polarity of the feature -1 or 1
+        :type polarity: int
         """
         self.type = feature_type
         self.top_left = position
@@ -38,7 +44,7 @@ class HaarLikeFeature(object):
         :param int_img: Integral image array
         :type int_img: numpy.ndarray
         :return: Score for given feature
-        :rtype: int
+        :rtype: float
         """
         score = 0
         if self.type == FeatureType.TWO_VERTICAL:

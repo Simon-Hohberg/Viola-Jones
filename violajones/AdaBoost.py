@@ -1,5 +1,4 @@
 from functools import partial
-
 import numpy as np
 from violajones.HaarLikeFeature import HaarLikeFeature
 from violajones.HaarLikeFeature import FeatureTypes
@@ -9,17 +8,23 @@ from multiprocessing import Pool
 LOADING_BAR_LENGTH = 50
 
 
+# TODO: select optimal threshold for each feature
+# TODO: attentional cascading
+
 def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, max_feature_width=-1, min_feature_height=1, max_feature_height=-1):
     """
-    
-    :param positive_iis: 
-    :type positive_iis: list(numpy.ndarray) 
-    :param negative_iis: 
-    :type negative_iis: list(numpy.ndarray)
-    :param num_classifiers: 
-    :type num_classifiers: int 
-    :return: 
-    :rtype list(violajones.HaarLikeFeature) List of selected features
+    Selects a set of classifiers. Iteratively takes the best classifiers based
+    on a weighted error.
+    :param positive_iis: List of positive integral image examples
+    :type positive_iis: list[numpy.ndarray]
+    :param negative_iis: List of negative integral image examples
+    :type negative_iis: list[numpy.ndarray]
+    :param num_classifiers: Number of classifiers to select, -1 will use all
+    classifiers
+    :type num_classifiers: int
+
+    :return: List of selected features
+    :rtype: list[violajones.HaarLikeFeature.HaarLikeFeature]
     """
     num_pos = len(positive_iis)
     num_neg = len(negative_iis)
@@ -43,6 +48,8 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     num_features = len(features)
     feature_indexes = range(num_features)
 
+    num_classifiers = num_features if num_classifiers == -1 else num_classifiers
+
     print('Calculating scores for images..')
 
     votes = np.zeros((num_imgs, num_features))
@@ -65,10 +72,11 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
         # normalize weights
         weights *= 1. / np.sum(weights)
 
-        # select best weak classifier
+        # select best classifier based on the weighted error
         for f in range(len(feature_indexes)):
             f_idx = feature_indexes[f]
-            # calculate error
+            # classifier error is the sum of image weights where the classifier
+            # is right
             error = sum(map(lambda img_idx: weights[img_idx] if labels[img_idx] != votes[img_idx, f_idx] else 0, range(num_imgs)))
             classification_errors[f] = error
 
@@ -77,7 +85,7 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
         best_error = classification_errors[min_error_idx]
         best_feature_idx = feature_indexes[min_error_idx]
 
-        # Set feature weight
+        # set feature weight
         best_feature = features[best_feature_idx]
         feature_weight = 0.5 * np.log((1 - best_error) / best_error)
         best_feature.weight = feature_weight
