@@ -2,9 +2,10 @@ import numpy as np
 from PIL import Image
 from violajones.HaarLikeFeature import FeatureType
 from functools import partial
+import os
 
 
-def classify(int_img, classifiers):
+def ensemble_vote(int_img, classifiers):
     """
     Classifies given integral image (numpy array) using given classifiers, i.e.
     if the sum of all classifier votes is greater 0, image is classified
@@ -20,7 +21,7 @@ def classify(int_img, classifiers):
     return 1 if sum([c.get_vote(int_img) for c in classifiers]) >= 0 else 0
 
 
-def classify_all(int_imgs, classifiers):
+def ensemble_vote_all(int_imgs, classifiers):
     """
     Classifies given list of integral images (numpy arrays) using classifiers,
     i.e. if the sum of all classifier votes is greater 0, an image is classified
@@ -34,8 +35,8 @@ def classify_all(int_imgs, classifiers):
     0
     :rtype: list[int]
     """
-    classify_partial = partial(classify, classifiers=classifiers)
-    return map(classify_partial, int_imgs)
+    vote_partial = partial(ensemble_vote, classifiers=classifiers)
+    return list(map(vote_partial, int_imgs))
 
 
 def reconstruct(classifiers, img_size):
@@ -96,3 +97,12 @@ def reconstruct(classifiers, img_size):
     result = Image.fromarray(image.astype(np.uint8))
     return result
 
+
+def load_images(path):
+    images = []
+    for _file in os.listdir(path):
+        if _file.endswith('.png'):
+            img_arr = np.array(Image.open((os.path.join(path, _file))), dtype=np.float64)
+            img_arr /= img_arr.max()
+            images.append(img_arr)
+    return images
