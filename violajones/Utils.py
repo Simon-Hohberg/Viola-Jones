@@ -1,8 +1,8 @@
 import numpy as np
-from PIL import Image
 from violajones.HaarLikeFeature import FeatureType
 from functools import partial
 import os
+from PIL import Image
 
 
 def ensemble_vote(int_img, classifiers):
@@ -48,7 +48,7 @@ def reconstruct(classifiers, img_size):
     :param img_size: Tuple of width and height
     :type img_size: (int, int)
     :return: Reconstructed image
-    :rtype: PIL.Image
+    :rtype: numpy.ndarray
     """
     image = np.zeros(img_size)
     for c in classifiers:
@@ -93,9 +93,7 @@ def reconstruct(classifiers, img_size):
                     image[c.top_left[0] + x, c.top_left[1] + y] += 1 * sign * c.weight
     image -= image.min()
     image /= image.max()
-    image *= 255
-    result = Image.fromarray(image.astype(np.uint8))
-    return result
+    return image
 
 
 def load_images(path):

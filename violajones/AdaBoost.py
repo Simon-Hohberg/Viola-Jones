@@ -67,18 +67,20 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     bar = progressbar.ProgressBar()
     for _ in bar(range(num_classifiers)):
 
-        classification_errors = np.zeros(len(feature_indexes))
+        # classification_errors = np.zeros(len(feature_indexes))
 
         # normalize weights
         weights *= 1. / np.sum(weights)
 
         # select best classifier based on the weighted error
-        for f in range(len(feature_indexes)):
-            f_idx = feature_indexes[f]
-            # classifier error is the sum of image weights where the classifier
-            # is right
-            error = sum(map(lambda img_idx: weights[img_idx] if labels[img_idx] != votes[img_idx, f_idx] else 0, range(num_imgs)))
-            classification_errors[f] = error
+        calc_error_partial = partial(_calc_feature_error, labels, votes, weights)
+        classification_errors = pool.map(calc_error_partial, feature_indexes)
+        # for f in range(len(feature_indexes)):
+        #     f_idx = feature_indexes[f]
+        #     # classifier error is the sum of image weights where the classifier
+        #     # is wrong
+        #     error = sum(pool.map(lambda img_idx: weights[img_idx] if labels[img_idx] != votes[img_idx, f_idx] else 0, range(num_imgs)))
+        #     classification_errors[f] = error
 
         # get best feature, i.e. with smallest error
         min_error_idx = np.argmin(classification_errors)
@@ -93,12 +95,19 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
         classifiers.append(best_feature)
 
         # update image weights
-        weights = np.array(list(map(lambda img_idx: weights[img_idx] * np.sqrt((1-best_error)/best_error) if labels[img_idx] != votes[img_idx, best_feature_idx] else weights[img_idx] * np.sqrt(best_error/(1-best_error)), range(num_imgs))))
+        best_feature_votes = votes[:, best_feature_idx]
+        weights = (1 - labels * best_feature_votes) * weights * np.sqrt((1-best_error)/best_error) + labels * best_feature_votes * weights * np.sqrt(best_error/(1-best_error))
+        # weights * np.sqrt((1-best_error)/best_error)
+        # weights = np.array(list(map(lambda img_idx: weights[img_idx] * np.sqrt((1-best_error)/best_error) if labels[img_idx] != votes[img_idx, best_feature_idx] else weights[img_idx] * np.sqrt(best_error/(1-best_error)), range(num_imgs))))
 
         # remove feature (a feature can't be selected twice)
         feature_indexes.remove(best_feature_idx)
 
     return classifiers
+
+
+def _calc_feature_error(labels, votes, weights, f_idx):
+    return np.sum((1 - (labels * votes[:, f_idx])) * weights)
 
 
 def _get_feature_vote(feature, image):
