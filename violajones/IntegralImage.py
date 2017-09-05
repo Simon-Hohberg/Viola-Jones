@@ -23,6 +23,8 @@ def to_integral_image(img_arr):
     :return Integral image for given image
     :rtype: numpy.ndarray
     """
+    if len(img_arr.shape) > 2 or len(img_arr.shape) < 2:
+        raise ValueError('This implementation supports monochrome images only (i.e. image dimension should be two).')
     # an index of -1 refers to the last row/column
     # since row_sum is calculated starting from (0,0),
     # rowSum(x, -1) == 0 holds for all x
