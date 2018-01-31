@@ -101,6 +101,7 @@ def load_images(path):
     for _file in os.listdir(path):
         if _file.endswith('.png'):
             img_arr = np.array(Image.open((os.path.join(path, _file))), dtype=np.float64)
-            img_arr /= img_arr.max()
+            if img_arr.max() > 0:
+                img_arr /= img_arr.max()
             images.append(img_arr)
     return images

@@ -2,7 +2,8 @@ from functools import partial
 import numpy as np
 from violajones.HaarLikeFeature import HaarLikeFeature
 from violajones.HaarLikeFeature import FeatureTypes
-import progressbar
+
+# import progressbar
 from multiprocessing import Pool
 
 LOADING_BAR_LENGTH = 50
@@ -53,10 +54,10 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     print('Calculating scores for images..')
 
     votes = np.zeros((num_imgs, num_features))
-    bar = progressbar.ProgressBar()
+    # bar = progressbar.ProgressBar()
     # Use as many workers as there are CPUs
     pool = Pool(processes=None)
-    for i in bar(range(num_imgs)):
+    for i in range(num_imgs):
         votes[i, :] = np.array(list(pool.map(partial(_get_feature_vote, image=images[i]), features)))
 
     # select classifiers
@@ -64,8 +65,8 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
     classifiers = []
 
     print('Selecting classifiers..')
-    bar = progressbar.ProgressBar()
-    for _ in bar(range(num_classifiers)):
+    # bar = progressbar.ProgressBar()
+    for _ in range(num_classifiers):
 
         # classification_errors = np.zeros(len(feature_indexes))
 
@@ -85,6 +86,9 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
         # get best feature, i.e. with smallest error
         min_error_idx = np.argmin(classification_errors)
         best_error = classification_errors[min_error_idx]
+        if best_error < 0:
+            print("This is bad")
+            best_error = 0
         best_feature_idx = feature_indexes[min_error_idx]
 
         # set feature weight
@@ -107,7 +111,10 @@ def learn(positive_iis, negative_iis, num_classifiers=-1, min_feature_width=1, m
 
 
 def _calc_feature_error(labels, votes, weights, f_idx):
-    return np.sum((1 - (labels * votes[:, f_idx])) * weights)
+    # Labels and votes are -1 or 1, when they are not equal they sum to 0, otherwise they sum to -2 or 2
+    # we can therefore take the absolute and divide by two, multiply with weights and sum over the vector leaving us
+    # with the desired error.
+    return np.sum(np.abs(labels + votes[:, f_idx])/2 * weights)
 
 
 def _get_feature_vote(feature, image):
